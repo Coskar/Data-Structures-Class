@@ -1,14 +1,53 @@
+#include <algorithm>
 #ifndef NATURALMERGESORTER_H
 #define NATURALMERGESORTER_H
 
 class NaturalMergeSorter {
 public:
    virtual int GetSortedRunLength(int* array, int arrayLength, int startIndex) {
-      // Your code here
+        // Check if startIndex is out of bounds
+      if (startIndex < 0 || startIndex >= arrayLength) {
+         return 0;
+      }
+
+      int runLength = 1; // Initialize run length to 1
+
+      // Increment run length while the next element is greater than the current
+      while (startIndex + runLength < arrayLength && array[startIndex + runLength] >= array[startIndex + runLength - 1]) {
+         runLength++;
+      }
+
+      return runLength;
    }
    
+   
    virtual void NaturalMergeSort(int* array, int arrayLength) {
-      // Your code here
+      int i = 0;
+
+      while (i < arrayLength) {
+         // Get the length of the first sorted run starting at i
+         int firstRunLength = GetSortedRunLength(array, arrayLength, i);
+
+         // Return if the first run's length equals the array length
+         if (firstRunLength == arrayLength) {
+            return;
+         }
+
+         // If the first run ends at the array's end, reassign i=0 and repeat step 2
+         if (i + firstRunLength == arrayLength) {
+            i = 0;
+            continue;
+         }
+
+         // Get the length of the second sorted run starting immediately after the first
+         int secondRunLength = GetSortedRunLength(array, arrayLength, i + firstRunLength);
+
+         // Merge the two runs
+         Merge(array, i, i + firstRunLength - 1, std::min(i + firstRunLength + secondRunLength - 1, arrayLength - 1));
+
+         // Reassign i with the first index after the second run or 0 if the second run ends at the array's end
+         i = (i + firstRunLength + secondRunLength == arrayLength) ? 0 : i + firstRunLength + secondRunLength;
+      }
    }
    
    virtual void Merge(int* numbers, int leftFirst, int leftLast,
